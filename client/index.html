@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Meeting Note Ninja - Royal Edition</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Meeting Note Ninja</h1>
+      <p class="subtitle">Transform your meeting notes into structured insights with AI-powered intelligence</p>
+    </header>
+
+    <section class="input-area">
+      <div class="input-label">Meeting Notes & Transcripts</div>
+      <textarea id="notes" placeholder="Paste your meeting notes, transcripts, or discussions here. Watch as our AI transforms them into structured insights, decisions, and action items..." rows="8"></textarea>
+      <div class="controls">
+        <button id="parseBtn">Parse with AI</button>
+        <button id="copyBtn" class="secondary">Copy Minutes</button>
+        <button id="downloadBtn" class="secondary">Download Report</button>
+      </div>
+      <div id="status" class="status"></div>
+    </section>
+
+    <section id="results" class="results hidden">
+      <div class="card">
+        <h2>Decisions Made</h2>
+        <ul id="decisionsList"></ul>
+      </div>
+      <div class="card">
+        <h2>Action Items</h2>
+        <table id="actionTable">
+          <thead>
+            <tr>
+              <th>Task</th>
+              <th>Owner</th>
+              <th>Deadline</th>
+              <th>Confidence</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h2>Key Discussion</h2>
+        <ul id="discussionList"></ul>
+      </div>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

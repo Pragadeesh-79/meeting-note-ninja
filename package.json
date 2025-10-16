@@ -1,0 +1,38 @@
+{
+  "name": "meeting-note-ninja",
+  "version": "1.0.0",
+  "description": "AI-powered meeting notes parser with intelligent text analysis",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js",
+    "build": "echo 'No build step required'",
+    "vercel-build": "echo 'Build complete'"
+  },
+  "keywords": [
+    "meeting",
+    "notes",
+    "ai",
+    "parser",
+    "productivity",
+    "automation"
+  ],
+  "author": "Meeting Note Ninja Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/meeting-note-ninja.git"
+  },
+  "homepage": "https://github.com/yourusername/meeting-note-ninja#readme"
+}
