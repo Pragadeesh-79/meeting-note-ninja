@@ -1,303 +1,623 @@
-const parseBtn = document.getElementById("parseBtn");
-const notesEl = document.getElementById("notes");
-const statusEl = document.getElementById("status");
-const resultsEl = document.getElementById("results");
-const decisionsList = document.getElementById("decisionsList");
-const discussionList = document.getElementById("discussionList");
-const actionTableBody = document.querySelector("#actionTable tbody");
-const copyBtn = document.getElementById("copyBtn");
-const downloadBtn = document.getElementById("downloadBtn");
+/**
+ * Meeting Note Ninja - Enhanced Interactive Script
+ * Hexuno AI - Modern, Futuristic Design System
+ */
 
-parseBtn.addEventListener("click", async () => {
-  const text = notesEl.value.trim();
-  if (!text) {
-    showNotification("Please paste your meeting notes first", "warning");
-    return;
-  }
-
-  // Enhanced loading state
-  statusEl.textContent = "AI is analyzing your meeting notes...";
-  statusEl.classList.add("loading");
-  parseBtn.textContent = "Processing...";
-  parseBtn.disabled = true;
-  resultsEl.classList.add("hidden");
-  
-  try {
-    // Use relative URL for production deployment
-    const apiUrl = window.location.hostname === 'localhost' 
-      ? "http://localhost:3001/api/parse-notes"
-      : "/api/parse-notes";
-    
-    const resp = await fetch(apiUrl, {
-      method: "POST",
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ notes: text })
-    });
-    
-    if (!resp.ok) {
-      throw new Error(`Server error: ${resp.status}`);
+class MeetingNoteNinja {
+    constructor() {
+        this.isLoading = false;
+        this.currentTheme = 'light';
+        
+        this.init();
+        this.setupEventListeners();
+        this.initParticleAnimation();
+        this.initTypewriterEffect();
+        this.initScrollReveal();
     }
-    
-    const data = await resp.json();
-    console.log('Received data:', data); // Debug log
-    renderResults(data);
-    statusEl.textContent = "Analysis complete! Your meeting insights are ready.";
-    showNotification("Meeting notes successfully parsed!", "success");
-    
-  } catch (e) {
-    console.error(e);
-    statusEl.textContent = "Error analyzing notes. Please try again.";
-    showNotification("Something went wrong. Please check your connection and try again.", "error");
-  } finally {
-    statusEl.classList.remove("loading");
-    parseBtn.textContent = "Parse with AI";
-    parseBtn.disabled = false;
-  }
-});
 
-function renderResults(response) {
-  // Extract data from the server response
-  const data = response.data || response;
-  console.log('Rendering data:', data); // Debug log
-  
-  // Show results immediately without clearing animation that might interfere
-  resultsEl.classList.remove("hidden");
-  
-  // Render decisions
-  decisionsList.innerHTML = "";
-  if (data.decisions && data.decisions.length > 0) {
-    data.decisions.forEach((d, index) => {
-      const li = document.createElement("li");
-      li.textContent = d;
-      li.style.opacity = "0";
-      li.style.animation = `fadeInUp 0.5s ease ${index * 0.1}s forwards`;
-      decisionsList.appendChild(li);
-    });
-  } else {
-    const li = document.createElement("li");
-    li.textContent = "No specific decisions identified";
-    li.style.opacity = "0.6";
-    decisionsList.appendChild(li);
-  }
-
-  // Render action items
-  actionTableBody.innerHTML = "";
-  if (data.actionItems && data.actionItems.length > 0) {
-    data.actionItems.forEach((a, index) => {
-      const tr = document.createElement("tr");
-      tr.style.opacity = "0";
-      tr.style.animation = `fadeInUp 0.5s ease ${(index + 2) * 0.1}s forwards`;
-      
-      // Fix confidence calculation - server sends as percentage already
-      const confidenceClass = getConfidenceClass(a.confidence / 100);
-      const confidenceText = a.confidence ? a.confidence + '%' : 'N/A';
-      const priorityBadge = a.priority ? `<span class="priority-badge ${a.priority.toLowerCase()}">${a.priority}</span>` : '';
-      
-      tr.innerHTML = `
-        <td>
-          <div class="task-content">
-            <strong>${a.task}</strong>
-            ${priorityBadge}
-          </div>
-        </td>
-        <td class="assignee-cell">${a.assignee || 'TBD'}</td>
-        <td class="deadline-cell">${formatDate(a.deadline) || 'TBD'}</td>
-        <td class="confidence-cell">
-          <span class="confidence-score ${confidenceClass}">${confidenceText}</span>
-        </td>
-      `;
-      actionTableBody.appendChild(tr);
-    });
-  } else {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td colspan="4" style="text-align: center; opacity: 0.6;">No action items identified</td>`;
-    actionTableBody.appendChild(tr);
-  }
-
-  // Render discussion points
-  discussionList.innerHTML = "";
-  if (data.keyDiscussion && data.keyDiscussion.length > 0) {
-    data.keyDiscussion.forEach((k, index) => {
-      const li = document.createElement("li");
-      li.textContent = k;
-      li.style.opacity = "0";
-      li.style.animation = `fadeInUp 0.5s ease ${(index + 4) * 0.1}s forwards`;
-      discussionList.appendChild(li);
-    });
-  } else {
-    const li = document.createElement("li");
-    li.textContent = "No key discussion points identified";
-    li.style.opacity = "0.6";
-    discussionList.appendChild(li);
-  }
-}
-
-function getConfidenceClass(confidence) {
-  if (!confidence) return 'low';
-  if (confidence >= 0.8) return 'high';
-  if (confidence >= 0.6) return 'medium';
-  return 'low';
-}
-
-function formatDate(dateString) {
-  if (!dateString) return null;
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
-    });
-  } catch (e) {
-    return dateString;
-  }
-}
-
-function showNotification(message, type = 'info') {
-  // Create notification element
-  const notification = document.createElement('div');
-  notification.className = `notification ${type}`;
-  notification.textContent = message;
-  
-  // Style the notification
-  notification.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#6366f1'};
-    color: white;
-    padding: 16px 24px;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    z-index: 1000;
-    font-weight: 600;
-    max-width: 400px;
-    animation: slideInRight 0.3s ease;
-  `;
-  
-  document.body.appendChild(notification);
-  
-  // Remove after 4 seconds
-  setTimeout(() => {
-    notification.style.animation = 'slideOutRight 0.3s ease forwards';
-    setTimeout(() => notification.remove(), 300);
-  }, 4000);
-}
-
-copyBtn.addEventListener("click", async () => {
-  try {
-    const md = convertToMarkdownFromDOM();
-    await navigator.clipboard.writeText(md);
-    showNotification("Meeting minutes copied to clipboard!", "success");
-  } catch (e) {
-    showNotification("Failed to copy to clipboard", "error");
-  }
-});
-
-downloadBtn.addEventListener("click", () => {
-  try {
-    const md = convertToMarkdownFromDOM();
-    const blob = new Blob([md], {type:'text/markdown'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `meeting-minutes-${new Date().toISOString().split('T')[0]}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showNotification("Meeting minutes downloaded!", "success");
-  } catch (e) {
-    showNotification("Failed to download file", "error");
-  }
-});
-
-function convertToMarkdownFromDOM() {
-  const decisions = Array.from(decisionsList.children).map(li => li.textContent);
-  const actions = Array.from(actionTableBody.children).map(tr => {
-    const tds = tr.querySelectorAll('td');
-    if (tds.length >= 4) {
-      return `- **${tds[0].textContent.trim()}** | Owner: ${tds[1].textContent} | Deadline: ${tds[2].textContent} | Confidence: ${tds[3].textContent}`;
+    init() {
+        // Initialize theme
+        const savedTheme = localStorage.getItem('ninja-theme') || 'light';
+        this.setTheme(savedTheme);
+        
+        // Initialize smooth scrolling
+        this.initSmoothScroll();
     }
-    return '';
-  }).filter(action => action);
-  const discussions = Array.from(discussionList.children).map(li => li.textContent);
 
-  const timestamp = new Date().toLocaleString();
-  
-  let md = `# Meeting Minutes Report\n\n*Generated on ${timestamp}*\n\n`;
-  
-  md += `## Decisions Made\n`;
-  if (decisions.length > 0 && !decisions[0].includes('No specific decisions')) {
-    decisions.forEach(d => md += `- ${d}\n`);
-  } else {
-    md += `*No specific decisions were identified in this meeting.*\n`;
-  }
-  
-  md += `\n## Action Items\n`;
-  if (actions.length > 0 && !actions[0].includes('No action items')) {
-    actions.forEach(a => md += `${a}\n`);
-  } else {
-    md += `*No action items were identified in this meeting.*\n`;
-  }
-  
-  md += `\n## Key Discussion Points\n`;
-  if (discussions.length > 0 && !discussions[0].includes('No key discussion')) {
-    discussions.forEach(d => md += `- ${d}\n`);
-  } else {
-    md += `*No key discussion points were identified in this meeting.*\n`;
-  }
-  
-  md += `\n---\n*Report generated by Meeting Note Ninja*`;
-  
-  return md;
+    setupEventListeners() {
+        // Core functionality buttons
+        document.getElementById('parseBtn')?.addEventListener('click', () => this.parseNotes());
+        document.getElementById('copyBtn')?.addEventListener('click', () => this.copyMinutes());
+        document.getElementById('downloadBtn')?.addEventListener('click', () => this.downloadReport());
+        
+        // Theme toggle
+        document.getElementById('themeToggle')?.addEventListener('click', () => this.toggleTheme());
+        
+        // Scroll to top
+        document.getElementById('scrollToTop')?.addEventListener('click', () => this.scrollToTop());
+        
+        // Navigation links
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => this.handleNavClick(e));
+        });
+
+        // Hero action buttons
+        document.querySelectorAll('.btn-primary, .btn-secondary').forEach(btn => {
+            btn.addEventListener('click', (e) => this.handleHeroAction(e));
+        });
+
+        // Feature cards hover effect
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('mouseenter', () => this.animateFeatureCard(card, 'enter'));
+            card.addEventListener('mouseleave', () => this.animateFeatureCard(card, 'leave'));
+        });
+
+        // Window scroll events
+        window.addEventListener('scroll', () => this.handleScroll());
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
+    }
+
+    async parseNotes() {
+        if (this.isLoading) return;
+
+        const notesTextarea = document.getElementById('notes');
+        const parseBtn = document.getElementById('parseBtn');
+        const statusDiv = document.getElementById('status');
+        const resultsSection = document.getElementById('results');
+
+        const notes = notesTextarea.value.trim();
+
+        if (!notes) {
+            this.showToast('Please enter some meeting notes first!', 'error');
+            notesTextarea.focus();
+            return;
+        }
+
+        // Start loading animation
+        this.isLoading = true;
+        parseBtn.classList.add('loading');
+        this.setStatus('AI is analyzing your meeting notes...', 'loading');
+
+        try {
+            // Simulate processing time for better UX
+            await this.delay(1500);
+
+            const response = await fetch('/api/parse', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ notes })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
+                this.displayResults(result.data);
+                this.setStatus('Analysis complete! Your meeting insights are ready.', 'success');
+                this.showToast('Meeting notes parsed successfully!', 'success');
+                
+                // Scroll to results with smooth animation
+                setTimeout(() => {
+                    resultsSection.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
+                }, 300);
+            } else {
+                throw new Error(result.message || 'Failed to parse notes');
+            }
+
+        } catch (error) {
+            console.error('Error parsing notes:', error);
+            this.setStatus('Failed to parse notes. Please try again.', 'error');
+            this.showToast('Error parsing notes. Please try again.', 'error');
+        } finally {
+            this.isLoading = false;
+            parseBtn.classList.remove('loading');
+        }
+    }
+
+    displayResults(data) {
+        const resultsSection = document.getElementById('results');
+        
+        // Show results section with animation
+        resultsSection.classList.remove('hidden');
+        resultsSection.classList.add('visible');
+        
+        // Populate decisions
+        this.populateList('decisionsList', data.decisions);
+        
+        // Populate action items table
+        this.populateActionTable('actionTable', data.actionItems);
+        
+        // Populate key discussion
+        this.populateList('discussionList', data.keyDiscussion);
+
+        // Add reveal animation to result cards
+        setTimeout(() => {
+            document.querySelectorAll('.result-card').forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(30px)';
+                    card.style.transition = 'all 0.6s ease';
+                    
+                    requestAnimationFrame(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    });
+                }, index * 200);
+            });
+        }, 100);
+    }
+
+    populateList(listId, items) {
+        const list = document.getElementById(listId);
+        if (!list) return;
+
+        list.innerHTML = '';
+        
+        if (!items || items.length === 0) {
+            list.innerHTML = '<li style="font-style: italic; color: var(--text-muted);">No items found</li>';
+            return;
+        }
+
+        items.forEach((item, index) => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            li.style.opacity = '0';
+            li.style.transform = 'translateX(-20px)';
+            li.style.transition = 'all 0.4s ease';
+            
+            list.appendChild(li);
+            
+            setTimeout(() => {
+                li.style.opacity = '1';
+                li.style.transform = 'translateX(0)';
+            }, index * 100);
+        });
+    }
+
+    populateActionTable(tableId, items) {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+
+        const tbody = table.querySelector('tbody');
+        tbody.innerHTML = '';
+
+        if (!items || items.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; font-style: italic; color: var(--text-muted);">No action items found</td></tr>';
+            return;
+        }
+
+        items.forEach((item, index) => {
+            const row = document.createElement('tr');
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(20px)';
+            row.style.transition = 'all 0.4s ease';
+            
+            row.innerHTML = `
+                <td>${item.task}</td>
+                <td style="text-align: center; font-weight: 600; color: var(--primary);">${item.assignee}</td>
+                <td style="text-align: center; font-style: italic;">${item.deadline || 'TBD'}</td>
+                <td style="text-align: center;">
+                    <span class="confidence-badge" style="
+                        background: linear-gradient(135deg, var(--success), var(--primary));
+                        color: white;
+                        padding: 4px 12px;
+                        border-radius: 8px;
+                        font-size: 0.85rem;
+                        font-weight: 600;
+                    ">${item.confidence}%</span>
+                </td>
+            `;
+            
+            tbody.appendChild(row);
+            
+            setTimeout(() => {
+                row.style.opacity = '1';
+                row.style.transform = 'translateY(0)';
+            }, index * 150);
+        });
+    }
+
+    async copyMinutes() {
+        const resultsSection = document.getElementById('results');
+        
+        if (resultsSection.classList.contains('hidden')) {
+            this.showToast('Please parse some notes first!', 'error');
+            return;
+        }
+
+        try {
+            // Generate formatted text from results
+            const formattedText = this.generateFormattedMinutes();
+            
+            await navigator.clipboard.writeText(formattedText);
+            this.showToast('Meeting minutes copied to clipboard!', 'success');
+            
+            // Visual feedback on button
+            const btn = document.getElementById('copyBtn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<svg class="btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="btn-text">Copied!</span>';
+            btn.style.background = 'var(--success)';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.style.background = '';
+            }, 2000);
+            
+        } catch (error) {
+            console.error('Error copying to clipboard:', error);
+            this.showToast('Failed to copy to clipboard', 'error');
+        }
+    }
+
+    generateFormattedMinutes() {
+        const decisions = Array.from(document.querySelectorAll('#decisionsList li')).map(li => li.textContent);
+        const discussions = Array.from(document.querySelectorAll('#discussionList li')).map(li => li.textContent);
+        const actionRows = Array.from(document.querySelectorAll('#actionTable tbody tr'));
+        
+        let formatted = '# Meeting Minutes\n\n';
+        formatted += `Generated by Hexuno Meeting Note Ninja\n`;
+        formatted += `Date: ${new Date().toLocaleDateString()}\n\n`;
+        
+        if (decisions.length > 0 && !decisions[0].includes('No items found')) {
+            formatted += '## Decisions Made\n';
+            decisions.forEach(decision => formatted += `• ${decision}\n`);
+            formatted += '\n';
+        }
+        
+        if (actionRows.length > 0) {
+            formatted += '## Action Items\n';
+            actionRows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 3) {
+                    formatted += `• ${cells[0].textContent} (${cells[1].textContent})\n`;
+                }
+            });
+            formatted += '\n';
+        }
+        
+        if (discussions.length > 0 && !discussions[0].includes('No items found')) {
+            formatted += '## Key Discussion Points\n';
+            discussions.forEach(discussion => formatted += `• ${discussion}\n`);
+        }
+        
+        return formatted;
+    }
+
+    downloadReport() {
+        const resultsSection = document.getElementById('results');
+        
+        if (resultsSection.classList.contains('hidden')) {
+            this.showToast('Please parse some notes first!', 'error');
+            return;
+        }
+
+        try {
+            const formattedText = this.generateFormattedMinutes();
+            const blob = new Blob([formattedText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `meeting-minutes-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            this.showToast('Meeting report downloaded!', 'success');
+            
+            // Visual feedback
+            const btn = document.getElementById('downloadBtn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<svg class="btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="btn-text">Downloaded!</span>';
+            btn.style.background = 'var(--success)';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.style.background = '';
+            }, 2000);
+            
+        } catch (error) {
+            console.error('Error downloading report:', error);
+            this.showToast('Failed to download report', 'error');
+        }
+    }
+
+    toggleTheme() {
+        this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+        this.setTheme(this.currentTheme);
+    }
+
+    setTheme(theme) {
+        this.currentTheme = theme;
+        document.body.className = `${theme}-theme`;
+        
+        // Update theme icon - the SVG will be rotated via CSS
+        const themeToggle = document.querySelector('.theme-toggle');
+        if (themeToggle) {
+            themeToggle.setAttribute('aria-label', theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
+            themeToggle.setAttribute('title', theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
+        }
+        
+        localStorage.setItem('ninja-theme', theme);
+        
+        // Update CSS variables for dark theme
+        if (theme === 'dark') {
+            document.documentElement.style.setProperty('--bg-primary', '#0F172A');
+            document.documentElement.style.setProperty('--bg-secondary', '#1E293B');
+            document.documentElement.style.setProperty('--bg-tertiary', '#334155');
+            document.documentElement.style.setProperty('--text-primary', '#F1F5F9');
+            document.documentElement.style.setProperty('--text-secondary', '#CBD5E1');
+            document.documentElement.style.setProperty('--border', '#334155');
+        } else {
+            document.documentElement.style.setProperty('--bg-primary', '#F9FAFB');
+            document.documentElement.style.setProperty('--bg-secondary', '#FFFFFF');
+            document.documentElement.style.setProperty('--bg-tertiary', '#F3F4F6');
+            document.documentElement.style.setProperty('--text-primary', '#1E293B');
+            document.documentElement.style.setProperty('--text-secondary', '#475569');
+            document.documentElement.style.setProperty('--border', '#E2E8F0');
+        }
+    }
+
+    setStatus(message, type = '') {
+        const statusDiv = document.getElementById('status');
+        if (!statusDiv) return;
+
+        let iconSvg = '';
+        if (type === 'success') {
+            iconSvg = '<svg class="status-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        } else if (type === 'error') {
+            iconSvg = '<svg class="status-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/><line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/></svg>';
+        } else if (type === 'loading') {
+            iconSvg = '<svg class="status-icon loading-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v4M12 18v4M5.64 5.64l2.83 2.83M15.54 15.54l2.83 2.83M2 12h4M18 12h4M5.64 18.36l2.83-2.83M15.54 8.46l2.83-2.83" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+        }
+
+        statusDiv.innerHTML = iconSvg + '<span class="status-text">' + message + '</span>';
+        statusDiv.className = `status ${type}`;
+        
+        if (type === 'loading') {
+            statusDiv.style.background = 'rgba(109, 40, 217, 0.1)';
+            statusDiv.style.color = 'var(--primary)';
+        } else if (type === 'success') {
+            statusDiv.style.background = 'rgba(16, 185, 129, 0.1)';
+            statusDiv.style.color = 'var(--success)';
+        } else if (type === 'error') {
+            statusDiv.style.background = 'rgba(239, 68, 68, 0.1)';
+            statusDiv.style.color = 'var(--error)';
+        }
+    }
+
+    showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        if (!toast) return;
+
+        toast.textContent = message;
+        toast.className = `toast ${type}`;
+        toast.classList.add('show');
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 4000);
+    }
+
+    initParticleAnimation() {
+        const canvas = document.getElementById('particleCanvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let animationFrame;
+
+        const resizeCanvas = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+
+        const createParticle = () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 0.5,
+            vy: (Math.random() - 0.5) * 0.5,
+            radius: Math.random() * 2 + 1,
+            opacity: Math.random() * 0.3 + 0.1
+        });
+
+        const initParticles = () => {
+            particles = [];
+            for (let i = 0; i < 50; i++) {
+                particles.push(createParticle());
+            }
+        };
+
+        const animate = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(particle => {
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                
+                if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
+                if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
+                
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(109, 40, 217, ${particle.opacity})`;
+                ctx.fill();
+            });
+            
+            animationFrame = requestAnimationFrame(animate);
+        };
+
+        resizeCanvas();
+        initParticles();
+        animate();
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            initParticles();
+        });
+
+        // Cleanup function
+        return () => {
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+            }
+        };
+    }
+
+    initTypewriterEffect() {
+        const subtitle = document.getElementById('heroSubtitle');
+        if (!subtitle) return;
+
+        const text = subtitle.textContent;
+        subtitle.textContent = '';
+        
+        let i = 0;
+        const typeWriter = () => {
+            if (i < text.length) {
+                subtitle.textContent += text.charAt(i);
+                i++;
+                setTimeout(typeWriter, 50);
+            }
+        };
+        
+        // Start typewriter effect after a delay
+        setTimeout(typeWriter, 1000);
+    }
+
+    initScrollReveal() {
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe sections for scroll reveal
+        document.querySelectorAll('.features, .testimonials, .main-section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(30px)';
+            section.style.transition = 'all 0.8s ease';
+            observer.observe(section);
+        });
+    }
+
+    initSmoothScroll() {
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    }
+
+    handleNavClick(e) {
+        e.preventDefault();
+        const targetId = e.target.getAttribute('href');
+        if (targetId && targetId.startsWith('#')) {
+            const target = document.querySelector(targetId);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    }
+
+    handleHeroAction(e) {
+        const button = e.target.closest('button');
+        if (button.textContent.includes('Try Free')) {
+            document.getElementById('interface')?.scrollIntoView({ behavior: 'smooth' });
+        } else if (button.textContent.includes('Watch Demo')) {
+            this.showToast('Demo video coming soon!', 'success');
+        }
+    }
+
+    animateFeatureCard(card, action) {
+        if (action === 'enter') {
+            card.style.transform = 'translateY(-10px) scale(1.02)';
+            card.style.boxShadow = '0 20px 40px rgba(109, 40, 217, 0.15)';
+        } else {
+            card.style.transform = 'translateY(0) scale(1)';
+            card.style.boxShadow = '';
+        }
+    }
+
+    handleScroll() {
+        const header = document.querySelector('.header');
+        const scrollToTopBtn = document.getElementById('scrollToTop');
+        const scrollTop = window.pageYOffset;
+        
+        if (scrollTop > 100) {
+            header?.classList.add('scrolled');
+            if (scrollToTopBtn) {
+                scrollToTopBtn.style.opacity = '1';
+                scrollToTopBtn.style.visibility = 'visible';
+                scrollToTopBtn.style.transform = 'translateY(0)';
+            }
+        } else {
+            header?.classList.remove('scrolled');
+            if (scrollToTopBtn) {
+                scrollToTopBtn.style.opacity = '0';
+                scrollToTopBtn.style.visibility = 'hidden';
+                scrollToTopBtn.style.transform = 'translateY(20px)';
+            }
+        }
+    }
+
+    scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+
+    handleKeyboardShortcuts(e) {
+        // Ctrl/Cmd + Enter to parse
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            e.preventDefault();
+            this.parseNotes();
+        }
+        
+        // Ctrl/Cmd + D to toggle theme
+        if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+            e.preventDefault();
+            this.toggleTheme();
+        }
+    }
+
+    delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
 }
 
-// Add CSS animations
-const style = document.createElement('style');
-style.textContent = `
-  .confidence-score.high { 
-    background: linear-gradient(135deg, #10b981, #059669); 
-    color: white;
-  }
-  .confidence-score.medium { 
-    background: linear-gradient(135deg, #f59e0b, #d97706); 
-    color: white;
-  }
-  .confidence-score.low { 
-    background: linear-gradient(135deg, #6b7280, #4b5563); 
-    color: white;
-  }
-  
-  .priority-badge {
-    font-size: 0.75rem;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-weight: 600;
-    margin-left: 8px;
-  }
-  
-  .priority-badge.high {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: white;
-  }
-  
-  .priority-badge.medium {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: white;
-  }
-  
-  .priority-badge.low {
-    background: linear-gradient(135deg, #6b7280, #4b5563);
-    color: white;
-  }
-  
-  .results {
-    display: grid !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-  }
-  
-  .results.hidden {
-    display: none !important;
-  }
-`;
-document.head.appendChild(style);
+// Initialize the application when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    new MeetingNoteNinja();
+});
+
+// Export for testing purposes
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = MeetingNoteNinja;
+}

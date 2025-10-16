@@ -17,7 +17,7 @@
     "productivity",
     "automation"
   ],
-  "author": "Meeting Note Ninja Team",
+  "author": "Pragadeesh-79",
   "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
@@ -32,7 +32,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/meeting-note-ninja.git"
+    "url": "https://github.com/Pragadeesh-79/meeting-note-ninja.git"
   },
-  "homepage": "https://github.com/yourusername/meeting-note-ninja#readme"
+  "homepage": "https://github.com/Pragadeesh-79/meeting-note-ninja#readme"
 }

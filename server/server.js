@@ -138,7 +138,7 @@ function intelligentMockParser(text) {
 }
 
 // API Routes
-app.post('/api/parse-notes', async (req, res) => {
+app.post('/api/parse', async (req, res) => {
     try {
         const { notes } = req.body;
         

@@ -9,8 +9,9 @@ A sophisticated AI-powered meeting notes parser that transforms your meeting tra
 - ** Rishikumar P
 - ** Pragadeeshwaran P
 
+## 🚀 Live Demo
 
-
+🌐 **[Try Meeting Note Ninja Live](https://meeting-note-ninja-pragadeesh-79s-projects.vercel.app)**
 
 ## ✨ Features
 
@@ -20,12 +21,8 @@ A sophisticated AI-powered meeting notes parser that transforms your meeting tra
 - **🎯 Priority Detection**: Recognizes urgency levels and sets priorities automatically
 - **📈 Confidence Scoring**: Provides confidence levels for extracted information
 - **📋 Export Options**: Copy to clipboard or download as formatted markdown
-- **🎨 Royal Theme**: Elegant white design with purple/gold accents
+- **🎨 Modern Design**: Professional Hexuno branding with purple/orange theme
 - **📱 Responsive**: Works perfectly on desktop, tablet, and mobile devices
-
-## 🚀 Live Demo
-
-🌐 **[Try Meeting Note Ninja Live](https://your-vercel-app.vercel.app)**
 
 ## 🛠️ Technology Stack
 

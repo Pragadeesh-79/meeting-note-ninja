@@ -3,54 +3,490 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Meeting Note Ninja - Royal Edition</title>
+  <title>Meeting Note Ninja | Hexuno AI</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
-  <div class="container">
-    <header>
-      <h1>Meeting Note Ninja</h1>
-      <p class="subtitle">Transform your meeting notes into structured insights with AI-powered intelligence</p>
-    </header>
-
-    <section class="input-area">
-      <div class="input-label">Meeting Notes & Transcripts</div>
-      <textarea id="notes" placeholder="Paste your meeting notes, transcripts, or discussions here. Watch as our AI transforms them into structured insights, decisions, and action items..." rows="8"></textarea>
-      <div class="controls">
-        <button id="parseBtn">Parse with AI</button>
-        <button id="copyBtn" class="secondary">Copy Minutes</button>
-        <button id="downloadBtn" class="secondary">Download Report</button>
-      </div>
-      <div id="status" class="status"></div>
-    </section>
-
-    <section id="results" class="results hidden">
-      <div class="card">
-        <h2>Decisions Made</h2>
-        <ul id="decisionsList"></ul>
-      </div>
-      <div class="card">
-        <h2>Action Items</h2>
-        <table id="actionTable">
-          <thead>
-            <tr>
-              <th>Task</th>
-              <th>Owner</th>
-              <th>Deadline</th>
-              <th>Confidence</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <div class="card">
-        <h2>Key Discussion</h2>
-        <ul id="discussionList"></ul>
-      </div>
-    </section>
+<body class="light-theme">
+  <!-- Animated Background -->
+  <div class="animated-bg">
+    <canvas id="particleCanvas"></canvas>
   </div>
+
+  <!-- Header Navigation -->
+  <header class="header">
+    <nav class="nav-container">
+      <div class="nav-brand">
+        <img src="Hexuno-F3.png" alt="Hexuno Logo" class="brand-logo" width="120" height="40">
+        <span class="brand-text">
+          <span class="divider">|</span>
+          <span class="ninja">Meeting Note Ninja</span>
+        </span>
+      </div>
+      
+      <div class="nav-links">
+        <a href="#home" class="nav-link">Home</a>
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#pricing" class="nav-link">Pricing</a>
+        <a href="#docs" class="nav-link">Docs</a>
+        <a href="#about" class="nav-link">About</a>
+        <a href="#contact" class="nav-link">Contact</a>
+      </div>
+      
+      <div class="nav-actions">
+        <button class="theme-toggle" id="themeToggle">
+          <svg class="theme-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 3V5M12 19V21M5.64 5.64L7.05 7.05M16.95 16.95L18.36 18.36M3 12H5M19 12H21M5.64 18.36L7.05 16.95M16.95 7.05L18.36 5.64" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </button>
+        <button class="btn-login">Login</button>
+        <button class="btn-cta">Get Started</button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero" id="home">
+    <div class="hero-container">
+      <div class="hero-content">
+        <h1 class="hero-title">
+          Transform Your Meeting Notes into 
+          <span class="gradient-text">Actionable Insights</span> 
+          with AI
+        </h1>
+        <p class="hero-subtitle" id="heroSubtitle">
+          Powered by Hexuno, Meeting Note Ninja automates your note-taking and turns discussions into clear, actionable reports.
+        </p>
+        <div class="hero-actions">
+          <button class="btn-primary">Try Free</button>
+          <button class="btn-secondary">Watch Demo</button>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="phone-mockup">
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <!-- Phone Status Bar -->
+              <div class="phone-status">
+                <span class="time">9:41</span>
+                <div class="signal-icons">
+                  <span class="signal"></span>
+                  <span class="wifi"></span>
+                  <span class="battery"></span>
+                </div>
+              </div>
+              
+              <!-- App Header with Hexuno Logo -->
+              <div class="app-header">
+                <img src="Hexuno-F3.png" alt="Hexuno Logo" class="app-logo" width="80" height="25">
+                <span class="app-title">Meeting Ninja</span>
+              </div>
+              
+              <!-- Meeting Interface Mockup -->
+              <div class="meeting-interface">
+                <div class="meeting-header">
+                  <div class="meeting-info">
+                    <h3>Product Strategy Meeting</h3>
+                    <p>10 participants • Recording</p>
+                  </div>
+                  <div class="recording-indicator">
+                    <div class="rec-dot"></div>
+                    <span>REC</span>
+                  </div>
+                </div>
+                
+                <div class="notes-preview">
+                  <div class="note-line active">
+                    <div class="note-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="#6D28D9">
+                        <path d="M9.663 17h4.673a2 2 0 0 0 1.414-.586l4.243-4.243a2 2 0 0 0 0-2.828l-4.243-4.243a2 2 0 0 0-1.414-.586H9.663a2 2 0 0 0-1.414.586L3.929 9.343a2 2 0 0 0 0 2.828l4.32 4.243A2 2 0 0 0 9.663 17z"/>
+                      </svg>
+                    </div>
+                    <span>AI analyzing discussion...</span>
+                  </div>
+                  <div class="note-line">
+                    <div class="note-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="#10B981">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                    </div>
+                    <span>Decision: Approve Q4 budget</span>
+                  </div>
+                  <div class="note-line">
+                    <div class="note-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="#F97316">
+                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                      </svg>
+                    </div>
+                    <span>Action: Sarah to prepare report</span>
+                  </div>
+                  <div class="note-line">
+                    <div class="note-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="#6366F1">
+                        <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                      </svg>
+                    </div>
+                    <span>Next: Review user feedback</span>
+                  </div>
+                </div>
+                
+                <div class="ai-insights">
+                  <div class="insight-badge">
+                    <span>AI Insights Ready</span>
+                    <div class="pulse-dot"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Phone Frame Elements -->
+            <div class="phone-button phone-power"></div>
+            <div class="phone-button phone-volume-up"></div>
+            <div class="phone-button phone-volume-down"></div>
+          </div>
+          
+          <!-- Floating Elements -->
+          <div class="floating-elements">
+            <div class="float-card card-1">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="#6D28D9">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span>Decision Made</span>
+            </div>
+            <div class="float-card card-2">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="#F97316">
+                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+              </svg>
+              <span>Action Item</span>
+            </div>
+            <div class="float-card card-3">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="#10B981">
+                <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+              <span>AI Powered</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Interface Section -->
+  <main class="main-section" id="interface">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Meeting Notes & Transcripts</h2>
+        <p class="section-subtitle">Transform your raw notes into structured intelligence</p>
+      </div>
+
+      <div class="input-area">
+        <div class="input-container">
+          <textarea 
+            id="notes" 
+            placeholder="Paste or type your meeting notes here..."
+            rows="8"
+            class="notes-input"
+          ></textarea>
+          <div class="input-overlay">
+            <div class="ai-indicator">
+              <span class="ai-dot"></span>
+              <span class="ai-text">AI Ready</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button id="parseBtn" class="btn-parse">
+            <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9.813 15.904L9 18.75l-.813-2.846A4.5 4.5 0 0 1 3.69 12.75H2.25a.75.75 0 0 1 0-1.5h1.44a4.5 4.5 0 0 1 4.497-3.154L9 5.25l.813 2.846A4.5 4.5 0 0 1 14.31 11.25h1.44a.75.75 0 0 1 0 1.5h-1.44a4.5 4.5 0 0 1-4.497 3.154Z" fill="currentColor"/>
+              <circle cx="19" cy="8" r="2" fill="currentColor"/>
+              <circle cx="19" cy="16" r="2" fill="currentColor"/>
+            </svg>
+            <span class="btn-text">Parse with AI</span>
+            <div class="btn-loader"></div>
+          </button>
+          <button id="copyBtn" class="btn-action">
+            <svg class="btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2" fill="none"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" fill="none"/>
+            </svg>
+            <span class="btn-text">Copy Minutes</span>
+          </button>
+          <button id="downloadBtn" class="btn-action">
+            <svg class="btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="btn-text">Download Report</span>
+          </button>
+        </div>
+
+        <div id="status" class="status"></div>
+      </div>
+
+      <section id="results" class="results hidden">
+        <div class="results-header">
+          <h3>Analysis Complete</h3>
+          <p>Your meeting insights are ready</p>
+        </div>
+        
+        <div class="results-grid">
+          <div class="result-card">
+            <div class="card-header">
+              <h4>Decisions Made</h4>
+            </div>
+            <div class="card-content">
+              <ul id="decisionsList"></ul>
+            </div>
+          </div>
+
+          <div class="result-card">
+            <div class="card-header">
+              <h4>Action Items</h4>
+            </div>
+            <div class="card-content">
+              <div class="table-container">
+                <table id="actionTable">
+                  <thead>
+                    <tr>
+                      <th>Task</th>
+                      <th>Owner</th>
+                      <th>Deadline</th>
+                      <th>Confidence</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="result-card">
+            <div class="card-header">
+              <h4>Key Discussion</h4>
+            </div>
+            <div class="card-content">
+              <ul id="discussionList"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Features Section -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Why Choose Meeting Note Ninja?</h2>
+        <p class="section-subtitle">Powered by cutting-edge AI to transform your productivity</p>
+      </div>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9.663 17H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="url(#featureGrad1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 5a3 3 0 1 1 6 0 3 3 0 0 1-6 0z" fill="url(#featureGrad1)"/>
+              <path d="M15 12a6 6 0 0 1 6 6v2h-6v-2a6 6 0 0 0-6-6" stroke="url(#featureGrad1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="9" cy="12" r="1" fill="url(#featureGrad1)"/>
+              <circle cx="15" cy="8" r="1" fill="url(#featureGrad1)"/>
+              <defs>
+                <linearGradient id="featureGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#6D28D9"/>
+                  <stop offset="100%" style="stop-color:#6366F1"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <h3 class="feature-title">AI-Powered Summaries</h3>
+          <p class="feature-description">Advanced natural language processing extracts key insights automatically</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="url(#featureGrad2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="url(#featureGrad2)"/>
+              <defs>
+                <linearGradient id="featureGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#F97316"/>
+                  <stop offset="100%" style="stop-color:#6D28D9"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <h3 class="feature-title">Smart Task Extraction</h3>
+          <p class="feature-description">Intelligently identifies action items, deadlines, and assignees</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="url(#featureGrad3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <polyline points="14,2 14,8 20,8" stroke="url(#featureGrad3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="16" y1="13" x2="8" y2="13" stroke="url(#featureGrad3)" stroke-width="2" stroke-linecap="round"/>
+              <line x1="16" y1="17" x2="8" y2="17" stroke="url(#featureGrad3)" stroke-width="2" stroke-linecap="round"/>
+              <polyline points="10,9 9,9 8,9" stroke="url(#featureGrad3)" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="18" cy="6" r="3" fill="url(#featureGrad3)"/>
+              <defs>
+                <linearGradient id="featureGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#6366F1"/>
+                  <stop offset="100%" style="stop-color:#F97316"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <h3 class="feature-title">One-Click Exports</h3>
+          <p class="feature-description">Export to PDF, Word, or share directly with your team</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="url(#featureGrad4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="9" cy="7" r="4" stroke="url(#featureGrad4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke="url(#featureGrad4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="url(#featureGrad4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="21" cy="8" r="2" fill="url(#featureGrad4)"/>
+              <defs>
+                <linearGradient id="featureGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#10B981"/>
+                  <stop offset="100%" style="stop-color:#6D28D9"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <h3 class="feature-title">Team Collaboration</h3>
+          <p class="feature-description">Real-time sharing and collaborative note refinement</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="testimonials">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Loved by Teams Everywhere</h2>
+        <div class="rating-stars">
+          <svg class="star-icon" width="24" height="24" viewBox="0 0 24 24" fill="#F97316" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <svg class="star-icon" width="24" height="24" viewBox="0 0 24 24" fill="#F97316" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <svg class="star-icon" width="24" height="24" viewBox="0 0 24 24" fill="#F97316" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <svg class="star-icon" width="24" height="24" viewBox="0 0 24 24" fill="#F97316" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <svg class="star-icon" width="24" height="24" viewBox="0 0 24 24" fill="#F97316" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <span class="rating-text">5.0</span>
+        </div>
+      </div>
+      
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-content">
+            <p>"Meeting Note Ninja has transformed how our team handles meeting documentation. It's like having an AI assistant in every meeting!"</p>
+          </div>
+          <div class="testimonial-author">
+            <div class="author-avatar">SM</div>
+            <div class="author-info">
+              <div class="author-name">Sarah Mitchell</div>
+              <div class="author-role">Product Manager, TechCorp</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="testimonial-card">
+          <div class="testimonial-content">
+            <p>"The accuracy of task extraction is incredible. We've reduced our post-meeting admin time by 80%."</p>
+          </div>
+          <div class="testimonial-author">
+            <div class="author-avatar">JD</div>
+            <div class="author-info">
+              <div class="author-name">James Davis</div>
+              <div class="author-role">Engineering Lead, StartupXYZ</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="testimonial-card">
+          <div class="testimonial-content">
+            <p>"Finally, a tool that understands context and nuance. Our meeting follow-ups are now crystal clear."</p>
+          </div>
+          <div class="testimonial-author">
+            <div class="author-avatar">AL</div>
+            <div class="author-info">
+              <div class="author-name">Alex Liu</div>
+              <div class="author-role">Operations Director, GlobalTech</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <img src="Hexuno-F3.png" alt="Hexuno Logo" class="brand-logo" width="100" height="32">
+            <span class="divider">|</span>
+            <span class="ninja">Meeting Note Ninja</span>
+          </div>
+          <p class="footer-tagline">Smarter Notes. Sharper Teams.</p>
+        </div>
+        
+        <div class="footer-links">
+          <div class="footer-column">
+            <h4>Product</h4>
+            <a href="#features">Features</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#api">API</a>
+            <a href="#docs">Documentation</a>
+          </div>
+          
+          <div class="footer-column">
+            <h4>Company</h4>
+            <a href="#about">About</a>
+            <a href="#blog">Blog</a>
+            <a href="#careers">Careers</a>
+            <a href="#contact">Contact</a>
+          </div>
+          
+          <div class="footer-column">
+            <h4>Connect</h4>
+            <div class="social-links">
+              <a href="#" class="social-link">LinkedIn</a>
+              <a href="#" class="social-link">Twitter</a>
+              <a href="#" class="social-link">GitHub</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2025 Hexuno. All rights reserved.</p>
+        <button class="scroll-to-top" id="scrollToTop">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 15l-6-6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
 
   <script src="script.js"></script>
 </body>
