@@ -4,6 +4,14 @@ A sophisticated AI-powered meeting notes parser that transforms your meeting tra
 
 ![Meeting Note Ninja](https://img.shields.io/badge/Meeting-Note%20Ninja-royal?style=for-the-badge&logo=crown)
 
+# Team Name : Skribe
+
+-- ** Rishikumar P
+-- ** Pragadeeshwaran P
+
+
+
+
 ## ✨ Features
 
 - **🧠 AI-Powered Intelligence**: Advanced text analysis that adapts to your meeting content
