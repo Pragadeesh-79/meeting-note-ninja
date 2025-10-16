@@ -3,8 +3,22 @@
 AI-powered meeting notes parser that transforms transcripts into structured insights.
 
 ## Team: Skribe
-- **Rishikumar P**
-- **Pragadeeshwaran P**
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/Pragadeesh-79">
+        <img src="https://avatars.githubusercontent.com/u/166401060?v=4" width="120px" style="border-radius:8px;" /><br>
+        <sub><b>Pragadeeshwaran</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/rishi0547">
+        <img src="https://avatars.githubusercontent.com/u/219163181?v=4" width="120px" style="border-radius:8px;" /><br>
+        <sub><b>Rishikumar</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
 
 ## 🚀 Live Demo
 **[Try it live](https://meeting-note-ninja-mtoqsx72n-pragadeeshserver79-6244s-projects.vercel.app)**
