@@ -6,8 +6,8 @@ A sophisticated AI-powered meeting notes parser that transforms your meeting tra
 
 # Team Name : Skribe
 
--- ** Rishikumar P
--- ** Pragadeeshwaran P
+- ** Rishikumar P
+- ** Pragadeeshwaran P
 
 
 
